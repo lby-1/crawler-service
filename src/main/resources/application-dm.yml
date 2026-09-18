@@ -1,0 +1,23 @@
+# 达梦 DM8 测试环境（对应 application-zszj.yml 中的 ZSZJ_INFRAS 数据源）
+spring:
+  datasource:
+    url: ${DM_DB_URL}
+    username: ${DM_DB_USERNAME}
+    password: ${DM_DB_PASSWORD}
+    driver-class-name: dm.jdbc.driver.DmDriver
+    hikari:
+      connection-timeout: 30000
+      minimum-idle: 2
+      maximum-pool-size: 10
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-test-query: SELECT 1
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  global-config:
+    db-config:
+      id-type: assign_uuid
+  configuration:
+    map-underscore-to-camel-case: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

@@ -1,0 +1,61 @@
+spring:
+  datasource:
+    url: ${MYSQL_DB_URL}
+    username: ${MYSQL_DB_USERNAME}
+    password: ${MYSQL_DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 30000
+      minimum-idle: 2
+      maximum-pool-size: 10
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-test-query: SELECT 1
+
+crawler:
+  external-business:
+    enabled: false
+    created-by: crawler-service
+    created-by-name: 爬虫服务
+    updated-by: crawler-service
+    updated-by-name: 爬虫服务
+    tenant-id: crawler-service
+    dept-id: ""
+    default-industry: ""
+    default-business-type: ""
+    datasource:
+      url: ${EXTERNAL_BUSINESS_DB_URL}
+      username: ${EXTERNAL_BUSINESS_DB_USERNAME}
+      password: ${EXTERNAL_BUSINESS_DB_PASSWORD}
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      hikari:
+        connection-timeout: 30000
+        minimum-idle: 1
+        maximum-pool-size: 5
+        idle-timeout: 600000
+        max-lifetime: 1800000
+        connection-test-query: SELECT 1
+  jianyu:
+    enabled: false
+    schedule:
+      enabled: false
+      cron: "0 30 2 * * ?"
+    api-url: https://api.jianyu360.com/data/biddata/list
+    info-url: https://api.jianyu360.com/data/biddata/info
+    appid: ${JIANYU_APPID:}
+    key: ${JIANYU_KEY:}
+    sub-type: 中标,招标
+    keyword-scope: 公告标题,公告正文,标的物,项目名称,采购单位,中标单位
+    industry: ""
+    default-days: 1
+    default-max-pages: 20
+    req-interval: 1
+    max-error-messages: 20
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  global-config:
+    db-config:
+      id-type: assign_uuid
+  configuration:
+    map-underscore-to-camel-case: false

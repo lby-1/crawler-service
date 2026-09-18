@@ -1,0 +1,37 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: crawler-service
+  profiles:
+    active: mysql
+
+logging:
+  level:
+    com.jpwise.crawler: INFO
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: /home/prpsdc/zszj/jpwise/logs/crawler-service.log
+  logback:
+    rollingpolicy:
+      max-file-size: 50MB
+      max-history: 30
+      total-size-cap: 1GB
+
+crawler:
+  auth-token: ${CRAWLER_AUTH_TOKEN:}
+  schedule:
+    enabled: true
+    # Run every 6 hours: 00:00, 06:00, 12:00, 18:00
+    cron: "0 0 */6 * * ?"
+  thread-pool:
+    core-size: 3
+    max-size: 5
+  default-page-limit: 50
+  default-req-interval: 2
+  cleanup:
+    result-keep-days: 7
+    log-keep-days: 30

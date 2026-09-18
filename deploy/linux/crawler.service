@@ -1,0 +1,14 @@
+[Unit]
+Description=crawler-service
+After=network.target
+
+[Service]
+Type=forking
+PIDFile=/home/prpsdc/zszj/jpwise/crawler.pid
+ExecStart=bash /home/prpsdc/zszj/jpwise/crawler.sh
+Restart=on-failure
+RestartSec=10
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

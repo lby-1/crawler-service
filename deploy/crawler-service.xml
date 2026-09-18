@@ -1,0 +1,21 @@
+<service>
+  <id>crawler-service</id>
+  <name>Crawler Service</name>
+  <description>信息采集爬虫服务 - Spring Boot 3.1.4</description>
+
+  <executable>java</executable>
+  <arguments>-Xms256m -Xmx512m -jar D:\crawler-service\crawler-service-1.0.0.jar</arguments>
+
+  <workingdirectory>D:\crawler-service</workingdirectory>
+
+  <logpath>D:\crawler-service\logs</logpath>
+  <logmode>rotate</logmode>
+
+  <onfailure action="restart" delay="10 sec"/>
+  <onfailure action="restart" delay="30 sec"/>
+  <onfailure action="none"/>
+
+  <startmode>Automatic</startmode>
+
+  <env name="PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD" value="1"/>
+</service>

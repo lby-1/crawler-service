@@ -1,0 +1,30 @@
+# Build outputs
+target/
+*.class
+*.jar
+
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Runtime data
+logs/
+*.log
+
+# IDE and local agent state
+.idea/
+.vscode/
+*.iml
+.omx/
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# OS metadata
+.DS_Store
+Thumbs.db

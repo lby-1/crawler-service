@@ -1,0 +1,63 @@
+-- ============================================================
+-- 爬虫服务数据库表（外网 MySQL ZSZJ_INFRAS）
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS `t_collect_result` (
+    `ID`            VARCHAR(50)   NOT NULL,
+    `TASKID`        VARCHAR(50)   DEFAULT NULL,
+    `SITEID`        VARCHAR(50)   DEFAULT NULL,
+    `SITENAME`      VARCHAR(100)  DEFAULT NULL COMMENT '网站名称',
+    `TITLE`         VARCHAR(500)  DEFAULT NULL COMMENT '文章标题',
+    `SUMMARY`       TEXT          DEFAULT NULL COMMENT '内容摘要',
+    `SOURCEURL`     TEXT          DEFAULT NULL COMMENT '原文链接',
+    `PUBLISHTIME`   DATETIME      DEFAULT NULL COMMENT '发布时间',
+    `COLLECTTIME`   DATETIME      DEFAULT NULL COMMENT '采集时间',
+    `HITKEYWORDS`   VARCHAR(500)  DEFAULT NULL COMMENT '命中关键字',
+    `READSTATUS`    INT           DEFAULT 0    COMMENT '0-未读 1-已读 2-归档',
+    `URLHASH`       VARCHAR(64)   NOT NULL     COMMENT 'URL MD5去重',
+    `CATEGORY`      VARCHAR(200)   DEFAULT NULL COMMENT '分类名称',
+    `CATEGORYCODE`  VARCHAR(200)   DEFAULT NULL COMMENT '分类编码',
+    `DETAIL`        LONGTEXT      DEFAULT NULL COMMENT '详情正文',
+    `HREF`          VARCHAR(500)  DEFAULT NULL COMMENT '详情页链接',
+    `PROVINCE`      VARCHAR(50)   DEFAULT NULL COMMENT '省份',
+    `CITY`          VARCHAR(100)  DEFAULT NULL COMMENT '城市',
+    `SPIDERSTATUS`  VARCHAR(20)   DEFAULT NULL COMMENT '同步状态',
+    `SYNCED`        TINYINT       DEFAULT 0    COMMENT '0-待同步 1-已同步',
+    `BIDAMOUNT`     VARCHAR(100)  DEFAULT NULL COMMENT '中标金额',
+    `BIDWINNER`     VARCHAR(200)  DEFAULT NULL COMMENT '中标单位',
+    `BIDDATE`       VARCHAR(50)   DEFAULT NULL COMMENT '中标日期',
+    `PROJECTNAME`   VARCHAR(500)  DEFAULT NULL COMMENT '招标项目名称',
+    `SECTIONNAME`   VARCHAR(500)  DEFAULT NULL COMMENT '标段(包)名称',
+    `MAXPRICE`      VARCHAR(100)  DEFAULT NULL COMMENT '最高投标限价（万元）',
+    `OPENTIME`      VARCHAR(100)  DEFAULT NULL COMMENT '开标时间',
+    `OPENPLACE`     VARCHAR(500)  DEFAULT NULL COMMENT '开标地点',
+    `TENDERER`      VARCHAR(200)  DEFAULT NULL COMMENT '招标人',
+    `TENDERCONTACT` VARCHAR(100)  DEFAULT NULL COMMENT '招标人联系人',
+    `TENDERTEL`     VARCHAR(50)   DEFAULT NULL COMMENT '联系电话',
+    `CREATORTIME`   DATETIME      DEFAULT NULL COMMENT '创建时间',
+    PRIMARY KEY (`ID`),
+    UNIQUE KEY `idx_url_hash` (`URLHASH`),
+    KEY `idx_synced` (`SYNCED`),
+    KEY `idx_collect_time` (`COLLECTTIME`),
+    KEY `idx_category` (`CATEGORYCODE`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='采集结果表';
+
+CREATE TABLE IF NOT EXISTS `t_collect_log` (
+    `ID`            VARCHAR(50)   NOT NULL COMMENT 'jobId',
+    `TASKID`        VARCHAR(50)   DEFAULT NULL,
+    `SITEID`        VARCHAR(50)   DEFAULT NULL,
+    `SITENAME`      VARCHAR(100)  DEFAULT NULL COMMENT '网站名称',
+    `TRIGGERTYPE`   INT           DEFAULT 0    COMMENT '0-手动 1-定时',
+    `EXECSTATUS`    INT           DEFAULT 0    COMMENT '0-执行中 1-成功 2-失败',
+    `STARTTIME`     DATETIME      DEFAULT NULL,
+    `ENDTIME`       DATETIME      DEFAULT NULL,
+    `TOTALCOUNT`    INT           DEFAULT 0,
+    `HITCOUNT`      INT           DEFAULT 0,
+    `ERRORMSG`      TEXT          DEFAULT NULL,
+    `SYNCED`        TINYINT       DEFAULT 0    COMMENT '0-待同步 1-已同步',
+    `CREATORTIME`   DATETIME      DEFAULT NULL,
+    `CATEGORY`      VARCHAR(50)   DEFAULT NULL COMMENT '分类名称',
+    PRIMARY KEY (`ID`),
+    KEY `idx_synced` (`SYNCED`),
+    KEY `idx_exec_status` (`EXECSTATUS`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='采集日志表';

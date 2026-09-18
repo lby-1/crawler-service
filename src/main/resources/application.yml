@@ -1,0 +1,256 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: crawler-service
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:mysql}
+
+logging:
+  level:
+    com.jpwise.crawler: DEBUG
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/crawler-service.log
+  logback:
+    rollingpolicy:
+      max-file-size: 50MB
+      max-history: 30
+      total-size-cap: 1GB
+
+crawler:
+  auth-token: ${CRAWLER_AUTH_TOKEN:}
+  schedule:
+    enabled: false
+    cron: "0 * * */3 * ?"
+  thread-pool:
+    core-size: 3
+    max-size: 5
+  default-page-limit: 50
+  default-req-interval: 2
+  cleanup:
+    result-keep-days: 7
+    log-keep-days: 30
+
+  # ============================================================
+  # 站点配置 — 每个站点指定自己的 CSS 选择器，引擎通用解析
+  # 新增站点只需在此添加配置，不需要写 Java 代码
+  # ============================================================
+  sites:
+
+    # ---- 广州公共资源交易中心 - 水利水务 ----
+    gzggzy-slsw:
+      name: 广州公共资源交易中心-水利水务
+      base-url: https://www.gzggzy.cn
+      province: 广东
+      city: 广州
+      page-pattern: index.jhtml
+      engine-type: playwright
+      playwright-config:
+        item-selector: "table.public-table tr"      # 列表行选择器
+        title-selector: "td a.title"                # 标题链接选择器
+        date-selector: "td span"                    # 日期选择器
+        wait-timeout: 30                            # 页面加载超时(秒)，默认10秒
+        load-more-wait: 3000                        # 点击加载更多后等待时间(毫秒)
+      list-selectors:
+        row: "table.public-table tr"
+        title: "td a.title"
+        title-attr: "attr:title"        # 从 title 属性取完整标题
+        link: ""                         # 留空表示和 title 元素相同
+        link-attr: "href"
+        date: "td span"
+      detail-selectors:
+        content: "div.detail-content-main"
+        publish-time: "meta[name=PubDate]"
+        publish-time-attr: "attr:content"
+        attachments: "div.attachments ul li a"
+      categories:
+        - name: 招标公告
+          url: https://www.gzggzy.cn/jyywjsgcslswzbgg/index.jhtml
+          code: zbgg
+        - name: 资审结果公示
+          url: https://www.gzggzy.cn/jyywjsgcslswzsjggs/index.jhtml
+          code: zsjggs
+        - name: 中标候选人公示
+          url: https://www.gzggzy.cn/jyywjsgcslswzbhxrgs/index.jhtml
+          code: zbhxrgs
+        - name: 中标信息
+          url: https://www.gzggzy.cn/jyywjsgcslswzbxx/index.jhtml
+          code: zbxx
+        - name: 中标结果公示
+          url: https://www.gzggzy.cn/jyywjsgcslswzbjggs/index.jhtml
+          code: zbjggs
+        - name: 合同订立信息公开
+          url: https://www.gzggzy.cn/jyywjsgcslswhtdlxxgk/index.jhtml
+          code: htdlxxgk
+
+    # ---- 广东省公共资源交易平台 - 工程建设/水利工程 ----
+    gdygp-slgc:
+      name: 广东省公共资源交易平台-水利工程
+      base-url: https://ygp.gdzwfw.gov.cn
+      province: 广东
+      city: ""              # 从API字段 regionName 取
+      engine-type: api
+      api-config:
+        api-url: https://ygp.gdzwfw.gov.cn/ggzy-portal/search/v2/items
+        page-size: 20
+        # 请求体模板，{pageNo}/{pageSize}/{categoryCode} 会被自动替换
+        request-body: '{"type":"trading-type","secondType":"A","projectType":"A07","pageNo":{pageNo},"pageSize":{pageSize},"siteCode":"44","tradingProcess":"{categoryCode}"}'
+        data-path: data.pageData
+        total-path: data.total
+        field-mapping:
+          title: noticeTitle
+          publishTime: publishDate
+          noticeId: noticeId
+          summary: ""
+          projectOwner: projectOwner
+          siteName: siteName
+          datasetName: datasetName
+          pubServicePlat: pubServicePlat
+          city: regionName
+          # 详情API URL（该站SPA链接规则复杂不可靠，存API地址由后端获取详情）
+          detailUrl: "https://ygp.gdzwfw.gov.cn/ggzy-portal/center/apis/trading-notice/{edition}/detail?projectCode={projectCode}&tradingType=A&tradingProcess={tradingProcess}&noticeId={noticeId}&siteCode={siteCode}"
+          browserUrl: "https://ygp.gdzwfw.gov.cn/#/44/new/jygg/{edition}/A?noticeId={noticeId}&projectCode={projectCode}&bizCode={tradingProcess}&siteCode={sysSiteCode}&publishDate={publishDate}&source={pubServicePlat}&titleDetails=%E5%B7%A5%E7%A8%8B%E5%BB%BA%E8%AE%BE&classify=A07"
+      categories:
+        - name: 全部公告
+          url: ""
+          code: ""
+        - name: 招标公告
+          url: ""
+          code: "3C11,3C12,3C13,3C14"
+        - name: 中标候选人公示
+          url: ""
+          code: "3C51"
+        - name: 中标结果公示
+          url: ""
+          code: "3C52"
+        - name: 合同公开
+          url: ""
+          code: "3161"
+
+#    # ---- 广西壮族自治区公共资源交易中心 - 工程建设/水利工程 ----
+    gxggzy-slgc:
+      name: 广西公共资源交易中心-水利工程
+      base-url: http://gxggzy.gxzf.gov.cn
+      province: 广西
+      city: ""
+      engine-type: api
+      api-config:
+        api-url: http://gxggzy.gxzf.gov.cn/irs/front/list
+        page-size: 20
+        request-body: '{"code":"181aedab55d","tableName":"t_187973f42ee","searchFields":[{"fieldName":"f_2023419644732","searchWord":"","withHighLight":true}],"sorts":[{"sortField":"save_time","sortOrder":"DESC"}],"trackTotalHits":true,"granularity":"ALL","pageNo":{pageNo},"pageSize":{pageSize},"customFilter":{"operator":"and","properties":[],"filters":[{"operator":"or","properties":[{categoryCode}]}]}}'
+        data-path: data.list
+        total-path: data.pager.total
+        field-mapping:
+          title: f_2023419644732
+          publishTime: save_time
+          noticeId: rec_id
+          summary: ""
+          detailUrl: "{doc_pub_url}"
+          browserUrl: "{doc_pub_url}"
+      categories:
+        - name: 全部水利工程
+          url: ""
+          code: '{"property":"channel_id","operator":"eq","value":"43230"},{"property":"channel_id","operator":"eq","value":"43231"},{"property":"channel_id","operator":"eq","value":"43233"},{"property":"channel_id","operator":"eq","value":"99464"},{"property":"channel_id","operator":"eq","value":"43235"},{"property":"channel_id","operator":"eq","value":"43236"},{"property":"channel_id","operator":"eq","value":"252106"}'
+        - name: 招标项目计划
+          url: ""
+          code: '{"property":"channel_id","operator":"eq","value":"252106"}'
+        - name: 交易公告
+          url: ""
+          code: '{"property":"channel_id","operator":"eq","value":"43231"}'
+        - name: 澄清变更
+          url: ""
+          code: '{"property":"channel_id","operator":"eq","value":"43233"}'
+        - name: 成交公示
+          url: ""
+          code: '{"property":"channel_id","operator":"eq","value":"43235"}'
+        - name: 中标结果公示
+          url: ""
+          code: '{"property":"channel_id","operator":"eq","value":"43236"}'
+
+    # ---- 云南省公共资源交易中心 - 工程建设/水利 ----
+    ynggzy-slgc:
+      name: 云南省公共资源交易中心-水利工程
+      base-url: https://ggzy.yn.gov.cn
+      province: 云南
+      city: ""
+      engine-type: api
+      api-config:
+        api-url: https://ggzy.yn.gov.cn/ynggfwpt-home-api/jyzyCenter/jyInfo/gcjs/{categoryCode}
+        page-size: 20
+        request-body: '{"pageNum":{pageNo},"pageSize":{pageSize},"hyId":"A07"}'
+        data-path: value.list
+        total-path: value.total
+        field-mapping:
+          title: bulletinname,tenderProjectName
+          publishTime: bulletinissuetime,publishTime
+          noticeId: guid
+          projectOwner: jyptid
+          city: jyptid
+          detailUrl: "https://ggzy.yn.gov.cn/tradeHall/tradeDetail?guid={guid}&colCode=1&rowCode={categoryName}&from=jiaoYi"
+      categories:
+        - name: 招标计划
+          url: ""
+          code: getTenserPlanList
+        - name: 招标公告
+          url: ""
+          code: getZbggList
+        - name: 中标结果公示
+          url: ""
+          code: getZbJgGgList
+    # ---- 海南公共资源交易中心 - 工程建设 ----
+    hnggzy-gcjs:
+      name: 海南公共资源交易中心-工程建设
+      base-url: https://ggzy.hainan.gov.cn
+      province: 海南
+      city: ""
+      engine-type: html
+      page-pattern: index.jhtml
+      list-selectors:
+        row: "table tr"
+        title: "td a[title]"
+        title-attr: "attr:title"
+        link: ""
+        link-attr: "href"
+        date: "td[align=center]:last-of-type"
+      detail-selectors:
+        content: "div.contnet_con"
+        publish-time: "meta[name=PubDate]"
+        publish-time-attr: "attr:content"
+        attachments: ""
+      categories:
+        - name: 招标公告
+          url: https://ggzy.hainan.gov.cn/ggzy/ggzy/jgzbgg/index.jhtml
+          code: jgzbgg
+        - name: 中标结果公告
+          url: https://ggzy.hainan.gov.cn/ggzy/ggzy/jgzbgs/index.jhtml
+          code: jgzbjggg
+#
+    # ---- 中国采购与招标网 - 水利（有百度WAF，需Playwright渲染） ----
+    chinabidding-sl:
+      name: 中国采购与招标网-水利
+      base-url: https://www.chinabidding.cn
+      province: ""
+      city: ""
+      engine-type: playwright
+      max-pages: 3
+      page-pattern: "{page}.html"
+      playwright-config:
+        list-container: "div.lieb"
+        item-selector: "div.lieb table table tr"
+        title-selector: "td:first-child a"
+        date-selector: "td:last-child"
+        load-more-selector: ""
+        wait-timeout: 20000
+        load-more-wait: 3000
+        # 快代理隧道配置
+#        proxy-server: "l625.kdltps.com:15818"
+#        proxy-username: "${CHINABIDDING_PROXY_USERNAME:}"    # 快代理提供的
+#        proxy-password: "${CHINABIDDING_PROXY_PASSWORD:}"      # 快代理提供的
+      categories:
+        - name: 招标公告
+          url: https://www.chinabidding.cn/sk/shuili/
+          code: sl-zbxx
