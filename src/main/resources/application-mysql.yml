@@ -42,8 +42,8 @@ crawler:
       cron: "0 30 2 * * ?"
     api-url: https://api.jianyu360.com/data/biddata/list
     info-url: https://api.jianyu360.com/data/biddata/info
-    appid: sfJx5YRAYCAwYEBQoJKj8N
-    key: 0960463S
+    appid: ${JIANYU_APPID:}
+    key: ${JIANYU_KEY:}
     sub-type: 中标,招标
     keyword-scope: 公告标题,公告正文,标的物,项目名称,采购单位,中标单位
     industry: ""
